@@ -11,6 +11,7 @@ interface Launch {
     status?: {
         name: string;
     };
+    image?: string; // Ajout du champ pour l'image
     // Ajoutez d'autres champs si nécessaire
 }
 
@@ -22,23 +23,19 @@ interface ApiResponse<T> {
 // Récupérer le prochain lancement valide (futur)
 export const getNextLaunch = async (): Promise<Launch> => {
     try {
-        // Récupérer les 10 prochains lancements
         const response = await axios.get<ApiResponse<Launch>>(`${API_BASE_URL}/launch/upcoming/?limit=100`);
-        console.log('Réponse de l\'API :', response.data); // Debug
-
-        // Filtrer les lancements passés
         const now = Date.now();
         const futureLaunches = response.data.results.filter((launch) => {
             const launchDate = new Date(launch.net).getTime();
-            return launchDate > now; // Garder uniquement les lancements futurs
+            return launchDate > now;
         });
 
-        // Si aucun lancement futur n'est trouvé
         if (futureLaunches.length === 0) {
             throw new Error('Aucun lancement futur trouvé.');
         }
 
-        // Retourner le premier lancement valide
+        // Ajouter l'image de la fusée si disponible dans l'API
+        futureLaunches[0].image = futureLaunches[0].image || `https://example.com/rocket-image/${futureLaunches[0].id}.png`; // Remplacez par l'URL réelle
         return futureLaunches[0];
     } catch (error) {
         const axiosError = error as AxiosError;
@@ -51,7 +48,10 @@ export const getNextLaunch = async (): Promise<Launch> => {
 export const getPastLaunches = async (): Promise<Launch[]> => {
     try {
         const response = await axios.get<ApiResponse<Launch>>(`${API_BASE_URL}/launch/previous/?limit=100`);
-        return response.data.results; // Retourne les 10 derniers lancements passés
+        response.data.results.forEach(launch => {
+            launch.image = launch.image || `https://example.com/rocket-image/${launch.id}.png`; // Remplacez par l'URL réelle
+        });
+        return response.data.results;
     } catch (error) {
         const axiosError = error as AxiosError;
         console.error('Erreur lors de la récupération des lancements passés :', axiosError.message);

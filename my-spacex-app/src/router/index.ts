@@ -1,12 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import AllLaunches from '../views/AllLaunches.vue';
+import Home from '../views/Home.vue';
+import LaunchDetails from '../views/LaunchDetails.vue';
 
 const routes = [
-    { path: '/all-launches', component: AllLaunches },
+    {
+        path: '/',
+        name: 'Home',
+        component: Home,
+    },
+    {
+        path: '/launch/:id',
+        name: 'LaunchDetails',
+        component: LaunchDetails,
+    },
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes,
 });
 
