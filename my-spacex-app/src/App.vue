@@ -145,34 +145,34 @@ watch(filter, (newFilter) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 p-6">
+  <div class="min-h-screen bg-gray-100 p-6">
     <!-- Titre principal -->
-    <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">PROCHAIN LANCEMENT</h1>
+    <h1 class="text-5xl font-bold text-center mb-8 text-gray-800">PROCHAIN LANCEMENT</h1>
 
     <!-- Section du décompte -->
     <div v-if="isLoading" class="text-center">Chargement en cours...</div>
     <div v-else class="bg-white p-8 rounded-lg shadow-md text-center mb-8">
-      <h2 class="text-2xl font-semibold mb-4 text-gray-700">{{ nextLaunch?.name || 'Aucun lancement futur trouvé.' }}</h2>
-      <div v-if="nextLaunch" class="flex justify-center space-x-4">
+      <h2 class="text-3xl font-semibold mb-6 text-gray-700">{{ nextLaunch?.name || 'Aucun lancement futur trouvé.' }}</h2>
+      <div v-if="nextLaunch" class="flex justify-center space-x-4 countdown-container">
         <!-- Jours -->
-        <div class="text-center">
-          <span class="text-5xl font-bold text-gray-800">{{ days }}</span>
-          <span class="block text-sm text-gray-500">J</span>
+        <div class="countdown-item">
+          <span class="value">{{ days }}</span>
+          <span class="label">JOURS</span>
         </div>
         <!-- Heures -->
-        <div class="text-center">
-          <span class="text-5xl font-bold text-gray-800">{{ hours }}</span>
-          <span class="block text-sm text-gray-500">H</span>
+        <div class="countdown-item">
+          <span class="value">{{ hours }}</span>
+          <span class="label">HEURES</span>
         </div>
         <!-- Minutes -->
-        <div class="text-center">
-          <span class="text-5xl font-bold text-gray-800">{{ minutes }}</span>
-          <span class="block text-sm text-gray-500">M</span>
+        <div class="countdown-item">
+          <span class="value">{{ minutes }}</span>
+          <span class="label">MINUTES</span>
         </div>
         <!-- Secondes -->
-        <div class="text-center">
-          <span class="text-5xl font-bold text-gray-800">{{ seconds }}</span>
-          <span class="block text-sm text-gray-500">S</span>
+        <div class="countdown-item">
+          <span class="value">{{ seconds }}</span>
+          <span class="label">SECONDES</span>
         </div>
       </div>
     </div>
@@ -183,7 +183,7 @@ watch(filter, (newFilter) => {
       <select
           id="filter"
           v-model="filter"
-          class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
       >
         <option value="all">Tous les lancements</option>
         <option value="success">Lancements réussis</option>
@@ -193,18 +193,82 @@ watch(filter, (newFilter) => {
 
     <!-- Section des lancements filtrés -->
     <div class="bg-white p-8 rounded-lg shadow-md">
-      <h2 class="text-2xl font-semibold mb-4 text-gray-700">Lancements passés</h2>
-      <ul>
-        <li v-for="launch in filteredLaunches" :key="launch.id" class="mb-4">
-          <p class="text-lg text-gray-600">
-            <span class="font-bold">{{ launch.name }}</span> -
-            {{ new Date(launch.net).toLocaleDateString() }}
-            <span v-if="launch.status" class="ml-2">
-              ({{ launch.status.name }})
-            </span>
+      <h2 class="text-3xl font-semibold mb-6 text-gray-700">Lancements passés</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div v-for="launch in filteredLaunches" :key="launch.id" class="launch-card">
+          <p class="text-xl font-bold text-gray-800">{{ launch.name }}</p>
+          <p class="text-sm text-gray-600 mt-2">{{ new Date(launch.net).toLocaleDateString() }}</p>
+          <p v-if="launch.status" class="text-sm mt-2 status" :class="{'success': launch.status.name === 'Launch Successful', 'failure': launch.status.name === 'Launch Failure'}">
+            Statut: {{ launch.status.name }}
           </p>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Ajoutez des styles personnalisés ici */
+.countdown-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.countdown-item {
+  text-align: center;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.3s ease-in-out;
+}
+
+.countdown-item:hover {
+  transform: scale(1.05);
+}
+
+.countdown-item .value {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: #1a202c;
+}
+
+.countdown-item .label {
+  font-size: 1rem;
+  color: #718096;
+  margin-top: 0.5rem;
+}
+
+.launch-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  transition: box-shadow 0.2s, transform 0.3s ease-in-out;
+}
+
+.launch-card:hover {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  transform: scale(1.02);
+}
+
+.launch-card p {
+  margin-bottom: 0.5rem;
+}
+
+.launch-card .status {
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.launch-card .status.success {
+  color: #28a745;
+}
+
+.launch-card .status.failure {
+  color: #dc3545;
+}
+</style>
